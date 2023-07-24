@@ -28,6 +28,7 @@ async function run() {
     const admissionCollection = client
       .db("admissionDB")
       .collection("admissions");
+
     app.get("/allColleges", async (req, res) => {
       const colleges = await collegeCollection.find({}).toArray();
       res.send(colleges);
@@ -57,6 +58,7 @@ async function run() {
       const result = await admissionCollection.findOne(query);
       res.send(result);
     });
+
     app.get("/myCollege/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -96,6 +98,15 @@ async function run() {
         },
       };
       const result = await admissionCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.get("/searchCollege", async (req, res) => {
+      const clgName = req.query.name;
+
+      const query = { name: clgName };
+
+      const result = await collegeCollection.findOne(query);
       res.send(result);
     });
 
