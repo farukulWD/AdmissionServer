@@ -42,7 +42,7 @@ async function run() {
     app.post("/admissions", async (req, res) => {
       const data = req.body;
       // console.log(data);
-      const query = { email: data.email };
+      const query = { _id: new ObjectId(data.collegeId) };
       const existing = await admissionCollection.findOne(query);
       if (existing) {
         res.send("You are already admit");
@@ -51,17 +51,16 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/student/:email", async (req, res) => {
-      const email = req.params.email;
-
-      const query = { email: email };
+    app.get("/student/:name", async (req, res) => {
+      const name = req.params.name;
+      const query = { name: name };
       const result = await admissionCollection.findOne(query);
       res.send(result);
     });
-    app.get("/myCollege/:collegeName", async (req, res) => {
-      const collegeName = req.params.collegeName;
+    app.get("/myCollege/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
 
-      const query = { name: collegeName };
       const result = await collegeCollection.findOne(query);
       res.send(result);
     });
@@ -82,8 +81,22 @@ async function run() {
           res.send(updatedDocument);
         }
       );
+    });
 
-      console.log(newReview);
+    app.patch("/editProfile/:id", async (req, res) => {
+      const id = req.params.id;
+      const { name, email, subject, selectCollegeName } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          name: name,
+          email: email,
+          subject: subject,
+          selectCollegeName: selectCollegeName,
+        },
+      };
+      const result = await admissionCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
